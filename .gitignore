@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+ENV/
+
+# Config
+config.yaml
+!config.yaml.example
+
+# Runtime/Data
+*.log
+history.jsonl
+rate_limits.json
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/

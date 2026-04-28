@@ -1,0 +1,79 @@
+# 忽略所有 Python 缓存和编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# 忽略构建和分发相关目录
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# 忽略虚拟环境
+env/
+venv/
+ENV/
+.venv/
+
+# 忽略配置文件（包含敏感信息，且通常通过 volume 挂载）
+config.yaml
+config.yaml.example
+*.backup
+
+# 忽略日志文件和目录
+*.log
+app.log
+logs/
+
+# 忽略 IDE 和编辑器配置
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 忽略测试相关文件
+.pytest_cache/
+.coverage
+htmlcov/
+*.cover
+
+# 忽略 Git 相关文件
+.git/
+.gitignore
+
+# 忽略 Claude 配置
+.claude/
+
+# 忽略所有 Markdown 文档（容器运行时不需要）
+*.md
+
+# 忽略本地启动脚本（Windows/Shell）
+*.bat
+*.sh
+
+# 忽略临时文件
+*.tmp
+*.bak
+
+# 确保这些文件被包含（白名单策略，即便上面有通配符）
+!requirements.txt
+!app.py
+!generator/
+!Dockerfile
+!docker-compose.yml

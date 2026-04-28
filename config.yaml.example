@@ -1,0 +1,35 @@
+# AI 探店评价生成器 — 配置文件示例
+# 复制为 config.yaml 后填入你的信息
+
+# API 配置（必填）
+api:
+  api_key: "YOUR_API_KEY_HERE"
+  base_url: "https://api.deepseek.com"       # 或其他 OpenAI 兼容 API
+  model_name: "deepseek-v4-flash"
+
+# 系统参数
+system:
+  max_keyword_length: 100
+  min_word_count: 10
+  max_word_count: 1000
+  max_retry_attempts: 1
+
+# 日志配置
+logging:
+  level: "INFO"           # DEBUG / INFO / WARNING / ERROR
+  to_file: true
+  log_file: "app.log"
+
+# 高德地图 POI 搜索（可选，不填则 AI 模拟店铺信息）
+amap:
+  api_key: ""
+  city: ""                # 如 "深圳"，限制搜索范围
+
+# Web 服务
+web:
+  host: "0.0.0.0"                      # 容器部署建议使用 0.0.0.0
+  port: 5200
+  debug: false
+  rate_limit_per_day: 10
+  history_file: "history.jsonl"
+  rate_limit_file: "rate_limits.json"

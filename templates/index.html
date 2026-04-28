@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>评价生成神器</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+<div class="container">
+    <div id="quotaBadge" class="quota-badge">今日剩余次数：--/--</div>
+    <h1>评价生成神器</h1>
+
+    <div class="form-group">
+        <label>请输入店铺名称：</label>
+        <input type="text" id="shopName" placeholder="例如：星巴克、KFC" required>
+    </div>
+
+    <div id="historyContainer" class="history-container"></div>
+    <div style="text-align: right; margin-bottom: 10px;">
+        <button onclick="clearHistory()"
+                style="background: none; border: none; color: #999; font-size: 12px; cursor: pointer; padding: 0; text-decoration: underline;">
+            清除历史记录
+        </button>
+    </div>
+
+    <div class="form-group">
+        <label>请选择字数范围：</label>
+        <select id="wordCount">
+            <option value="50-100" selected>50-100 字</option>
+            <option value="100-150">100-150 字</option>
+            <option value="15-50">15-50 字</option>
+            <option value="150-300">150-300 字</option>
+        </select>
+    </div>
+
+    <button id="genBtn" onclick="generateReview()">生成评价</button>
+    <div id="progressBar" class="progress-bar" style="display: none;">
+        <div class="progress-bar-inner"></div>
+    </div>
+    <div id="resultBox" class="result-box empty">点击生成按钮获取评价</div>
+    <button id="copyBtn" class="copy-btn" onclick="copyResult()" disabled>复制结果</button>
+
+    <div class="gen-history">
+        <div class="gen-history-header">
+            <div class="gen-history-title">历史生成记录</div>
+            <div class="gen-history-actions">
+                <button class="link-btn" onclick="loadGenHistory()">刷新</button>
+                <button class="link-btn" onclick="clearGenHistory()">清空</button>
+            </div>
+        </div>
+        <div id="genHistoryList" class="gen-history-list"></div>
+    </div>
+</div>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
