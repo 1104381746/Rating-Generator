@@ -23,7 +23,7 @@
 
 ```bash
 # 克隆仓库
-git clone https://github.com/<your-username>/rating-generator.git
+git clone https://github.com/1104381746/Rating-Generator.git
 cd rating-generator
 
 # 创建并激活虚拟环境 (可选但推荐)
