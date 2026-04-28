@@ -18,20 +18,22 @@ def load_config(config_path: str = "config.yaml") -> Dict:
         system_config = config.get('system', {})
         logging_config = config.get('logging', {})
 
-        return {
+        raw = {
             'api_key': api_config.get('api_key'),
-            'api_base_url': api_config.get('base_url', 'https://api.deepseek.com'),
-            'model_name': api_config.get('model_name', 'deepseek-v4-flash'),
+            'api_base_url': api_config.get('base_url'),
+            'model_name': api_config.get('model_name'),
             'amap_api_key': amap_config.get('api_key'),
             'amap_city': amap_config.get('city'),
-            'max_keyword_length': system_config.get('max_keyword_length', 100),
-            'min_word_count': system_config.get('min_word_count', 10),
-            'max_word_count': system_config.get('max_word_count', 1000),
-            'max_retry_attempts': system_config.get('max_retry_attempts', 3),
-            'log_level': logging_config.get('level', 'INFO'),
-            'log_to_file': logging_config.get('to_file', False),
-            'log_file': logging_config.get('log_file', 'app.log')
+            'max_keyword_length': system_config.get('max_keyword_length'),
+            'min_word_count': system_config.get('min_word_count'),
+            'max_word_count': system_config.get('max_word_count'),
+            'max_retry_attempts': system_config.get('max_retry_attempts'),
+            'log_level': logging_config.get('level'),
+            'log_to_file': logging_config.get('to_file'),
+            'log_file': logging_config.get('log_file'),
         }
+        # 过滤 None 值，让 Config dataclass 的字段默认值生效
+        return {k: v for k, v in raw.items() if v is not None}
     except yaml.YAMLError as e:
         raise ValueError(f"配置文件格式错误: {e}")
     except Exception as e:
@@ -42,8 +44,8 @@ def load_config(config_path: str = "config.yaml") -> Dict:
 class Config:
     """配置类 - 从YAML文件加载"""
     api_key: str
-    api_base_url: str = "https://api.deepseek.com"
-    model_name: str = "deepseek-v4-flash"
+    api_base_url: str
+    model_name: str
     amap_api_key: str | None = None
     amap_city: str | None = None
     max_keyword_length: int = 100

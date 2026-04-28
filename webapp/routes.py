@@ -11,6 +11,11 @@ from .history_store import append_history_record, clear_history_file, read_histo
 from .rate_limit import RateLimiter, get_client_ip
 from .settings import HISTORY_FILE, RATE_LIMIT_FILE, RATE_LIMIT_PER_IP_PER_DAY
 
+# 从 config.yaml 读取校验边界
+_sys = load_config()
+MAX_KEYWORD_LENGTH = _sys.get('max_keyword_length') or 100
+MIN_WORD_LIMIT = _sys.get('min_word_count') or 10
+MAX_WORD_LIMIT = _sys.get('max_word_count') or 1000
 
 bp = Blueprint("web", __name__)
 rate_limiter = RateLimiter(daily_limit=RATE_LIMIT_PER_IP_PER_DAY, storage_file=RATE_LIMIT_FILE)
@@ -28,8 +33,8 @@ def generate():
         data = request.json or {}
         keyword = str(data.get("keyword", "")).strip()
         # 防止参数注入：关键词不能以 - 开头，长度限制
-        if not keyword or len(keyword) < 2 or len(keyword) > 100:
-            return jsonify({"success": False, "error": "店铺名称长度需在 2-100 字符之间"})
+        if not keyword or len(keyword) < 2 or len(keyword) > MAX_KEYWORD_LENGTH:
+            return jsonify({"success": False, "error": f"店铺名称长度需在 2-{MAX_KEYWORD_LENGTH} 字符之间"})
         if keyword.startswith("-"):
             return jsonify({"success": False, "error": "无效的店铺名称"})
 
@@ -38,8 +43,8 @@ def generate():
             max_w = int(data.get("max_w", 100))
         except (TypeError, ValueError):
             return jsonify({"success": False, "error": "字数范围必须为整数"})
-        if not (10 <= min_w <= max_w <= 1000):
-            return jsonify({"success": False, "error": f"字数范围无效 ({min_w}-{max_w})"})
+        if not (MIN_WORD_LIMIT <= min_w <= max_w <= MAX_WORD_LIMIT):
+            return jsonify({"success": False, "error": f"字数范围无效，需在 {MIN_WORD_LIMIT}-{MAX_WORD_LIMIT} 之间"})
 
         client_ip = get_client_ip(request)
         allowed, remaining = rate_limiter.check_and_consume(client_ip)
