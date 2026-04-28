@@ -1,7 +1,11 @@
 # AI 探店评价生成器 — 配置文件示例
 # 复制为 config.yaml 后填入你的信息
+#
+# Docker 部署提示：api_key / base_url / model_name / amap 等敏感配置
+# 也可通过环境变量设置，优先级高于本文件：
+#   RG_API_KEY / RG_API_BASE_URL / RG_MODEL_NAME / RG_AMAP_API_KEY / RG_AMAP_CITY
 
-# API 配置（必填）
+# API 配置（二选一：填在此处，或通过环境变量设置）
 api:
   api_key: "YOUR_API_KEY_HERE"
   base_url: "https://api.deepseek.com"       # 或其他 OpenAI 兼容 API
@@ -21,6 +25,7 @@ logging:
   log_file: "app.log"
 
 # 高德地图 POI 搜索（可选，不填则 AI 模拟店铺信息）
+# 也可通过 RG_AMAP_API_KEY / RG_AMAP_CITY 环境变量设置
 amap:
   api_key: ""
   city: ""                # 如 "深圳"，限制搜索范围

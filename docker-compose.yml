@@ -1,24 +1,16 @@
-version: '3.8'
-
 services:
-  shop-review:
-    build:
-      context: .
-      dockerfile: Dockerfile
+  rating-generator:
+    image: ghcr.io/1104381746/rating-generator:latest
     container_name: rating-generator
     ports:
       - "5200:5200"
     restart: unless-stopped
     environment:
       - TZ=Asia/Shanghai
+      - RG_API_KEY=sk-your-api-key
+      - RG_API_BASE_URL=https://api.deepseek.com
+      - RG_MODEL_NAME=deepseek-v4-flash
+      # - RG_AMAP_API_KEY=your-amap-key
+      # - RG_AMAP_CITY=深圳
     volumes:
-      # 持久化日志文件
       - ./logs:/app/logs
-      # 持久化配置文件（如果需要）
-      - ./config.yaml:/app/config.yaml:ro
-    networks:
-      - shop-review-network
-
-networks:
-  shop-review-network:
-    driver: bridge

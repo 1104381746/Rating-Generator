@@ -1,191 +1,138 @@
-# Rating Generator — AI 探店评价生成器
+# Rating Generator
 
-基于大语言模型的探店评价生成工具。输入店铺名称，自动生成口语化、真实感强的消费评价，适用于大众点评平台风格的种草文案。
+基于大语言模型的探店评价生成器。输入店铺名称，自动生成口语化、真实的消费评价，适用于大众点评、小红书等平台风格的种草文案。
 
----
+## 功能
 
-## ✨ 功能特性
+- **一键生成** — 输入店名，选择字数范围，即刻生成评价
+- **高德地图接入** — 可选接入高德 POI 搜索 API，自动补充店铺真实信息
+- **单次 API 调用** — 店铺搜索与评价生成合二为一，响应更快
+- **历史记录** — 浏览器端自动保存 + 服务端 JSONL 持久化，支持复制和清空
+- **Docker 部署** — 预构建镜像发布在 ghcr.io，拉取即用
 
-- **一键生成** — 输入店名，选择字数范围，即刻生成口语化评价。
-- **高德地图 POI 集成** — 可选接入高德地图 API，自动补充店铺真实信息（名称、地址、类型等）。
-- **单次 API 调用** — 店铺搜索与评价生成合并为一次调用，响应更快、成本更低。
-- **历史记录** — 浏览器端 + 服务端双存储，支持复制和清空。
-- **多方式部署** — 支持本地 Python 环境、Docker 及 Docker Compose 快速部署。
+## 安装部署
 
----
+### 方式 1：Docker 部署（推荐）
 
-## 🚀 部署指南
+镜像发布在 [GitHub Container Registry](https://github.com/1104381746/Rating-Generator/pkgs/container/rating-generator)，拉取即用。
 
-### 1. 本地开发部署
-
-**环境要求：** Python 3.9+
+**基础部署**
 
 ```bash
-# 克隆仓库
-git clone https://github.com/1104381746/Rating-Generator.git
-cd rating-generator
-
-# 创建并激活虚拟环境 (可选但推荐)
-python -m venv venv
-# Windows:
-.\venv\Scripts\activate
-# Linux/macOS:
-source venv/bin/activate
-
-# 安装依赖
-pip install -r requirements.txt
-
-# 配置文件
-cp config.yaml.example config.yaml
-# 编辑 config.yaml，填入您的 API Key 及其他配置
-
-# 启动服务
-python app.py
-```
-
-访问 `http://localhost:5200` 即可使用。
-
----
-
-### 2. Docker 部署
-
-**环境要求：** 已安装 Docker
-
-```bash
-# 构建镜像
-docker build -t rating-generator .
-
-# 准备配置文件 (确保本地已有 config.yaml)
-# 运行容器
 docker run -d \
   --name rating-generator \
   -p 5200:5200 \
-  -v ${PWD}/config.yaml:/app/config.yaml:ro \
-  -v ${PWD}/logs:/app/logs \
-  rating-generator
+  -v $(pwd)/logs:/app/logs \
+  -e RG_API_KEY=sk-your-api-key \
+  -e RG_API_BASE_URL=https://api.deepseek.com \
+  -e RG_MODEL_NAME=deepseek-v4-flash \
+  -e RG_AMAP_API_KEY=your-amap-key \
+  -e RG_AMAP_CITY=深圳 \
+  ghcr.io/1104381746/rating-generator:latest
 ```
 
----
+`docker run` 参数说明：
 
-### 3. Docker Compose 部署 (推荐)
+- `-p 5200:5200` — 将容器端口映射到宿主机，按需调整
+- `-v $(pwd)/logs:/app/logs` — 持久化日志文件
+- `-e RG_API_KEY` — API 密钥
+- `-e RG_API_BASE_URL` — API 接口地址
+- `-e RG_MODEL_NAME` — 模型名称
+- `-e RG_AMAP_API_KEY` — 高德地图 Key（可选）
+- `-e RG_AMAP_CITY` — 限定城市（可选）
 
-**环境要求：** 已安装 Docker 和 Docker Compose
+**Docker Compose 部署**
 
-```bash
-# 1. 复制配置文件并修改
-cp config.yaml.example config.yaml
-
-# 2. 启动服务
-docker-compose up -d
-```
-
-**停止服务：**
-```bash
-docker-compose down
-```
-
----
-
-## ⚙️ 配置说明
-
-配置文件 `config.yaml` 详细参数如下：
+创建 `docker-compose.yml` 文件：
 
 ```yaml
-# API 配置 (必填)
-api:
-  api_key: "sk-xxx"                    # API 密钥
-  base_url: "https://api.deepseek.com" # 或其他兼容 OpenAI 协议的 API 地址
-  model_name: "deepseek-v4-flash"
-
-# 系统参数
-system:
-  max_keyword_length: 100              # 店名最大长度
-  min_word_count: 10                   # 评价最小字数
-  max_word_count: 1000                 # 评价最大字数
-  max_retry_attempts: 1                # API 调用失败重试次数
-
-# 日志
-logging:
-  level: "INFO"                        # DEBUG / INFO / WARNING / ERROR
-  to_file: true
-  log_file: "app.log"
-
-# 高德地图 POI 搜索 (可选，留空则由 AI 模拟店铺信息)
-amap:
-  api_key: ""                          # 高德 Web 服务 API Key
-  city: ""                             # 搜索限定城市，如 "深圳"
-
-# Web 服务
-web:
-  host: "0.0.0.0"                      # 容器部署建议使用 0.0.0.0
-  port: 5200
-  debug: false                         # 生产环境务必设为 false
-  history_file: "history.jsonl"
+services:
+  rating-generator:
+    image: ghcr.io/1104381746/rating-generator:latest
+    container_name: rating-generator
+    restart: unless-stopped
+    ports:
+      - "5200:5200"
+    environment:
+      - TZ=Asia/Shanghai
+      - RG_API_KEY=sk-your-api-key
+      - RG_API_BASE_URL=https://api.deepseek.com
+      - RG_MODEL_NAME=deepseek-v4-flash
+    volumes:
+      - ./logs:/app/logs
 ```
 
----
+启动服务：
 
-## 📂 项目结构
-
-```text
-├── app.py                  # Web 服务入口
-├── config.yaml             # 统一配置文件 (不纳入版本控制)
-├── config.yaml.example     # 配置文件示例
-├── requirements.txt        # Python 依赖
-├── Dockerfile              # Docker 构建文件
-├── docker-compose.yml      # Docker Compose 配置文件
-├── generator/              # 核心生成逻辑
-│   ├── config.py           # 配置加载与校验
-│   ├── models.py           # 数据模型 (Pydantic)
-│   └── service.py          # AI 调用与逻辑处理
-├── webapp/                 # Flask Web 层
-│   ├── routes.py           # 路由定义
-│   ├── settings.py         # Web 配置加载
-│   └── history_store.py    # 历史记录存取
-├── templates/              # 前端页面模板
-├── static/                 # 静态资源 (CSS/JS)
-└── logs/                   # 日志持久化目录
+```bash
+docker compose up -d
 ```
 
----
+查看日志：
 
-## 🛠️ 技术栈
+```bash
+docker compose logs -f
+```
+
+停止服务：
+
+```bash
+docker compose down
+```
+
+**数据持久化说明**
+
+| 挂载路径 | 说明 |
+|---------|------|
+| `/app/logs` | 应用日志目录 |
+
+> 日志文件统一输出到挂载的 `./logs` 目录下，历史生成记录存储在 `history.jsonl` 中。如需在容器重建时保留历史记录，建议将 `history.jsonl` 也挂载到宿主机。
+
+### 方式 2：本地 Python 部署
+
+```bash
+pip install -r requirements.txt
+cp config.yaml.example config.yaml   # 编辑填入 API Key
+python app.py
+```
+
+## 配置说明
+
+所有配置集中在 `config.yaml`。Docker 部署时也可通过环境变量设置。
+
+### 环境变量（Docker）
+
+以下环境变量优先级高于 `config.yaml`：
+
+| 变量 | 对应配置 |
+|------|---------|
+| `RG_API_KEY` | `api.api_key` |
+| `RG_API_BASE_URL` | `api.base_url` |
+| `RG_MODEL_NAME` | `api.model_name` |
+| `RG_AMAP_API_KEY` | `amap.api_key` |
+| `RG_AMAP_CITY` | `amap.city` |
+
+## API 兼容性
+
+兼容 OpenAI 接口协议的大模型均可使用：
+
+- [DeepSeek](https://platform.deepseek.com/) — `https://api.deepseek.com`
+- [智谱 GLM](https://open.bigmodel.cn/) — `https://open.bigmodel.cn/api/paas/v4`
+- [通义千问](https://dashscope.aliyun.com/) — `https://dashscope.aliyuncs.com/compatible-mode/v1`
+- 其他兼容 OpenAI 协议的 API 网关
+
+## 技术栈
 
 | 层次 | 技术 |
 |------|------|
-| 后端框架 | Flask 3.x (工厂模式 + Blueprint) |
-| AI 客户端 | OpenAI Python SDK |
-| 数据校验 | Pydantic v2 |
-| 配置管理 | PyYAML |
-| 前端 | 原生 JavaScript (无框架依赖) |
+| 后端 | Flask 3.x（工厂模式 + Blueprint）|
+| AI | OpenAI Python SDK |
+| 校验 | Pydantic v2 |
+| 配置 | PyYAML |
+| 前端 | 原生 JavaScript |
+| 地图 | 高德 POI 搜索 API |
 | 部署 | Docker / Docker Compose |
 
----
+## 开源协议
 
-## 📄 开源协议
-
-本项目基于 [MIT License](LICENSE) 开源。
-
-```
-MIT License
-
-Copyright (c) 2026 
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+[MIT](LICENSE)

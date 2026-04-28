@@ -19,11 +19,11 @@ def load_config(config_path: str = "config.yaml") -> Dict:
         logging_config = config.get('logging', {})
 
         raw = {
-            'api_key': api_config.get('api_key'),
-            'api_base_url': api_config.get('base_url'),
-            'model_name': api_config.get('model_name'),
-            'amap_api_key': amap_config.get('api_key'),
-            'amap_city': amap_config.get('city'),
+            'api_key': os.getenv('RG_API_KEY') or api_config.get('api_key'),
+            'api_base_url': os.getenv('RG_API_BASE_URL') or api_config.get('base_url'),
+            'model_name': os.getenv('RG_MODEL_NAME') or api_config.get('model_name'),
+            'amap_api_key': os.getenv('RG_AMAP_API_KEY') or amap_config.get('api_key'),
+            'amap_city': os.getenv('RG_AMAP_CITY') or amap_config.get('city'),
             'max_keyword_length': system_config.get('max_keyword_length'),
             'min_word_count': system_config.get('min_word_count'),
             'max_word_count': system_config.get('max_word_count'),
