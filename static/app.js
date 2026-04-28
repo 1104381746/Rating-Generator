@@ -110,27 +110,29 @@ async function generateReview() {
 }
 
 function copyResult() {
+  const copyBtn = document.getElementById('copyBtn');
   if (!currentResult) {
     const resultBox = document.getElementById('resultBox');
     if (resultBox && resultBox.textContent && !resultBox.classList.contains('empty')) {
       currentResult = resultBox.textContent;
     }
   }
-  copyText(currentResult);
+  copyText(currentResult, copyBtn);
 }
 
-function showCopyFeedback(message) {
-  const copyBtn = document.getElementById('copyBtn');
-  const originalText = copyBtn.innerText;
-  copyBtn.innerText = message;
-  copyBtn.style.background = '#48bb78';
+function showCopyFeedback(message, targetElement) {
+  const btn = targetElement || document.getElementById('copyBtn');
+  const originalText = btn.innerText;
+  btn.innerText = message;
+  const originalBackground = btn.style.background;
+  btn.style.background = '#48bb78';
   setTimeout(() => {
-    copyBtn.innerText = originalText;
-    copyBtn.style.background = '';
+    btn.innerText = originalText;
+    btn.style.background = originalBackground;
   }, 2000);
 }
 
-function fallbackCopy(text) {
+function fallbackCopy(text, targetElement) {
   let success = false;
   const textArea = document.createElement('textarea');
   try {
@@ -168,7 +170,7 @@ function fallbackCopy(text) {
     }
   }
   if (success) {
-    showCopyFeedback('✅ 已复制！');
+    showCopyFeedback('✅ 已复制！', targetElement);
   } else {
     alert('❌ 复制失败，请长按结果框手动复制');
   }
@@ -257,7 +259,7 @@ async function loadGenHistory() {
       const copyBtn = document.createElement('button');
       copyBtn.className = 'small-copy block';
       copyBtn.textContent = '复制';
-      copyBtn.addEventListener('click', () => copyText(item.review || ''));
+      copyBtn.addEventListener('click', () => copyText(item.review || '', copyBtn));
 
       itemDiv.appendChild(metaSection);
       itemDiv.appendChild(shopSection);
@@ -289,16 +291,16 @@ async function clearGenHistory() {
   }
 }
 
-function copyText(text) {
+function copyText(text, targetElement) {
   if (!text) return;
   if (navigator.clipboard && window.isSecureContext) {
     navigator.clipboard.writeText(text).then(() => {
-      showCopyFeedback('✅ 已复制！');
+      showCopyFeedback('✅ 已复制！', targetElement);
     }).catch(() => {
-      fallbackCopy(text);
+      fallbackCopy(text, targetElement);
     });
   } else {
-    fallbackCopy(text);
+    fallbackCopy(text, targetElement);
   }
 }
 
