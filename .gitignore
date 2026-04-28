@@ -13,7 +13,6 @@ config.yaml
 # Runtime/Data
 *.log
 history.jsonl
-rate_limits.json
 logs/
 
 # OS

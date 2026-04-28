@@ -134,23 +134,6 @@ button:disabled { background: #dcdcdc; cursor: not-allowed; transform: none; }
 }
 .history-tag:hover { background: #667eea; color: white; }
 
-.quota-badge {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  background: #f5f7ff;
-  color: #667eea;
-  border: 1px solid #eef0ff;
-  border-radius: 999px;
-  padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  max-width: 70%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .gen-history {
   margin-top: 18px;
   border-top: 1px dashed #eee;

@@ -30,6 +30,4 @@ web:
   host: "0.0.0.0"                      # 容器部署建议使用 0.0.0.0
   port: 5200
   debug: false
-  rate_limit_per_day: 10
   history_file: "history.jsonl"
-  rate_limit_file: "rate_limits.json"

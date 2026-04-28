@@ -8,8 +8,7 @@ from generator.config import Config, load_config
 from generator.service import AIShopReviewService
 
 from .history_store import append_history_record, clear_history_file, read_history_records, utc_now_iso
-from .rate_limit import RateLimiter, get_client_ip
-from .settings import HISTORY_FILE, RATE_LIMIT_FILE, RATE_LIMIT_PER_IP_PER_DAY
+from .settings import HISTORY_FILE
 
 # 从 config.yaml 读取校验边界
 _sys = load_config()
@@ -18,7 +17,6 @@ MIN_WORD_LIMIT = _sys.get('min_word_count') or 10
 MAX_WORD_LIMIT = _sys.get('max_word_count') or 1000
 
 bp = Blueprint("web", __name__)
-rate_limiter = RateLimiter(daily_limit=RATE_LIMIT_PER_IP_PER_DAY, storage_file=RATE_LIMIT_FILE)
 
 
 @bp.route("/")
@@ -28,7 +26,6 @@ def home():
 
 @bp.route("/generate", methods=["POST"])
 def generate():
-    client_ip = "unknown"
     try:
         data = request.json or {}
         keyword = str(data.get("keyword", "")).strip()
@@ -46,24 +43,6 @@ def generate():
         if not (MIN_WORD_LIMIT <= min_w <= max_w <= MAX_WORD_LIMIT):
             return jsonify({"success": False, "error": f"字数范围无效，需在 {MIN_WORD_LIMIT}-{MAX_WORD_LIMIT} 之间"})
 
-        client_ip = get_client_ip(request)
-        allowed, remaining = rate_limiter.check_and_consume(client_ip)
-        if not allowed:
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "error": f"今日该 IP 的生成次数已用完（每天最多 {RATE_LIMIT_PER_IP_PER_DAY} 次），请明天再试。",
-                        "rate_limit": {
-                            "ip": client_ip,
-                            "daily_limit": RATE_LIMIT_PER_IP_PER_DAY,
-                            "remaining_today": 0,
-                        },
-                    }
-                ),
-                429,
-            )
-
         logger = logging.getLogger("webapp")
         logger.info("生成评价: keyword=%s, range=%d-%d", keyword, min_w, max_w)
 
@@ -74,7 +53,6 @@ def generate():
             shop_info, review = service.generate(keyword, (min_w, max_w))
         except Exception as e:
             logger.error(f"生成失败: {e}")
-            rate_limiter.refund(client_ip)
             return jsonify({"success": False, "error": str(e)})
 
         # 记录到服务端历史
@@ -92,17 +70,7 @@ def generate():
             },
         )
 
-        return jsonify(
-            {
-                "success": True,
-                "review": review,
-                "rate_limit": {
-                    "ip": client_ip,
-                    "daily_limit": RATE_LIMIT_PER_IP_PER_DAY,
-                    "remaining_today": remaining,
-                },
-            }
-        )
+        return jsonify({"success": True, "review": review})
     except Exception as e:
         return jsonify({"success": False, "error": str(e), "traceback": traceback.format_exc()})
 
@@ -135,25 +103,6 @@ def history_clear():
     try:
         clear_history_file(HISTORY_FILE)
         return jsonify({"success": True})
-    except Exception as e:
-        return jsonify({"success": False, "error": str(e)})
-
-
-@bp.route("/rate_limit", methods=["GET"])
-def rate_limit_status():
-    try:
-        client_ip = get_client_ip(request)
-        remaining = rate_limiter.get_remaining(client_ip)
-        return jsonify(
-            {
-                "success": True,
-                "rate_limit": {
-                    "ip": client_ip,
-                    "daily_limit": RATE_LIMIT_PER_IP_PER_DAY,
-                    "remaining_today": remaining,
-                },
-            }
-        )
     except Exception as e:
         return jsonify({"success": False, "error": str(e)})
 

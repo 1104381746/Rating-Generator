@@ -10,7 +10,6 @@
 - **高德地图 POI 集成** — 可选接入高德地图 API，自动补充店铺真实信息（名称、地址、类型等）。
 - **单次 API 调用** — 店铺搜索与评价生成合并为一次调用，响应更快、成本更低。
 - **历史记录** — 浏览器端 + 服务端双存储，支持复制和清空。
-- **频率限制** — 基于 IP 的日调用次数控制，防止滥用。
 - **多方式部署** — 支持本地 Python 环境、Docker 及 Docker Compose 快速部署。
 
 ---
@@ -121,9 +120,7 @@ web:
   host: "0.0.0.0"                      # 容器部署建议使用 0.0.0.0
   port: 5200
   debug: false                         # 生产环境务必设为 false
-  rate_limit_per_day: 10               # 每 IP 每天最大调用次数
   history_file: "history.jsonl"
-  rate_limit_file: "rate_limits.json"
 ```
 
 ---
@@ -143,7 +140,7 @@ web:
 │   └── service.py          # AI 调用与逻辑处理
 ├── webapp/                 # Flask Web 层
 │   ├── routes.py           # 路由定义
-│   ├── rate_limit.py       # IP 频率限制
+│   ├── settings.py         # Web 配置加载
 │   └── history_store.py    # 历史记录存取
 ├── templates/              # 前端页面模板
 ├── static/                 # 静态资源 (CSS/JS)

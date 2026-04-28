@@ -14,7 +14,7 @@ def _load_web_config():
     if not isinstance(web, dict):
         raise ValueError("config.yaml 中缺少 web 配置段")
 
-    required = ["host", "port", "debug", "rate_limit_per_day", "history_file", "rate_limit_file"]
+    required = ["host", "port", "debug", "history_file"]
     missing = [k for k in required if k not in web]
     if missing:
         raise ValueError(f"config.yaml 的 web 段缺少以下配置项: {', '.join(missing)}")
@@ -23,9 +23,7 @@ def _load_web_config():
         "host": str(web["host"]),
         "port": int(web["port"]),
         "debug": bool(web["debug"]),
-        "rate_limit_per_day": int(web["rate_limit_per_day"]),
         "history_file": str(web["history_file"]),
-        "rate_limit_file": str(web["rate_limit_file"]),
     }
 
 
@@ -34,6 +32,4 @@ _web = _load_web_config()
 HOST = _web["host"]
 PORT = _web["port"]
 DEBUG = _web["debug"]
-RATE_LIMIT_PER_IP_PER_DAY = _web["rate_limit_per_day"]
 HISTORY_FILE = _web["history_file"]
-RATE_LIMIT_FILE = _web["rate_limit_file"]

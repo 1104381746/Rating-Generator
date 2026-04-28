@@ -89,9 +89,6 @@ async function generateReview() {
       }),
     });
     const data = await response.json();
-    if (data && data.rate_limit) {
-      setQuotaBadge(data.rate_limit.remaining_today, data.rate_limit.daily_limit);
-    }
     if (data.success) {
       currentResult = data.review;
       resultBox.textContent = data.review;
@@ -102,7 +99,6 @@ async function generateReview() {
     } else {
       resultBox.textContent = '错误：' + (data.error || '生成失败');
       resultBox.classList.add('empty');
-      loadQuotaBadge();
     }
   } catch (e) {
     resultBox.textContent = '网络错误，请检查服务是否运行';
@@ -185,26 +181,6 @@ function escapeHtml(text) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
-}
-
-function setQuotaBadge(remaining, dailyLimit) {
-  const badge = document.getElementById('quotaBadge');
-  if (!badge) return;
-  const lim = (dailyLimit === undefined || dailyLimit === null) ? '--' : dailyLimit;
-  const rem = (remaining === undefined || remaining === null) ? '--' : remaining;
-  badge.textContent = `今日剩余次数：${rem}/${lim}`;
-}
-
-async function loadQuotaBadge() {
-  try {
-    const resp = await fetch('/rate_limit');
-    const data = await resp.json();
-    if (data && data.success && data.rate_limit) {
-      setQuotaBadge(data.rate_limit.remaining_today, data.rate_limit.daily_limit);
-    }
-  } catch (e) {
-    // ignore
-  }
 }
 
 async function loadGenHistory() {
@@ -329,5 +305,4 @@ function copyText(text) {
 window.onload = function () {
   renderHistory();
   loadGenHistory();
-  loadQuotaBadge();
 };
