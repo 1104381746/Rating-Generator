@@ -5,6 +5,15 @@ from typing import Dict
 import yaml
 
 
+def _to_int_or_none(value):
+    if value is None:
+        return None
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
 def load_config(config_path: str = "config.yaml") -> Dict:
     """从YAML配置文件加载配置"""
     try:
@@ -17,6 +26,9 @@ def load_config(config_path: str = "config.yaml") -> Dict:
         amap_config = config.get('amap', {})
         system_config = config.get('system', {})
         logging_config = config.get('logging', {})
+        web_config = config.get('web', {})
+
+        raw_port = _to_int_or_none(os.getenv('RG_PORT')) or web_config.get('port')
 
         raw = {
             'api_key': os.getenv('RG_API_KEY') or api_config.get('api_key'),
@@ -31,6 +43,10 @@ def load_config(config_path: str = "config.yaml") -> Dict:
             'log_level': logging_config.get('level'),
             'log_to_file': logging_config.get('to_file'),
             'log_file': logging_config.get('log_file'),
+            'host': os.getenv('RG_HOST') or web_config.get('host'),
+            'port': raw_port,
+            'debug': os.getenv('RG_DEBUG', '').lower() in ('1', 'true', 'yes') or bool(web_config.get('debug', False)),
+            'history_file': os.getenv('RG_HISTORY_FILE') or web_config.get('history_file'),
         }
         # 过滤 None 值，让 Config dataclass 的字段默认值生效
         return {k: v for k, v in raw.items() if v is not None}
@@ -55,6 +71,10 @@ class Config:
     log_level: str = "INFO"
     log_to_file: bool = False
     log_file: str = "app.log"
+    host: str = "0.0.0.0"
+    port: int = 5200
+    debug: bool = False
+    history_file: str = "history.jsonl"
 
     def __post_init__(self):
         self.validate()

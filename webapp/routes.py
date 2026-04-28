@@ -8,13 +8,13 @@ from generator.config import Config, load_config
 from generator.service import AIShopReviewService
 
 from .history_store import append_history_record, clear_history_file, read_history_records, utc_now_iso
-from .settings import HISTORY_FILE
 
 # 从 config.yaml 读取校验边界
 _sys = load_config()
 MAX_KEYWORD_LENGTH = _sys.get('max_keyword_length') or 100
 MIN_WORD_LIMIT = _sys.get('min_word_count') or 10
 MAX_WORD_LIMIT = _sys.get('max_word_count') or 1000
+HISTORY_FILE = _sys.get('history_file') or 'history.jsonl'
 
 bp = Blueprint("web", __name__)
 
