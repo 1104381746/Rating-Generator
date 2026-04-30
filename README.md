@@ -121,6 +121,47 @@ python app.py
 - [通义千问](https://dashscope.aliyun.com/) — `https://dashscope.aliyuncs.com/compatible-mode/v1`
 - 其他兼容 OpenAI 协议的 API 网关
 
+## 架构图
+
+```mermaid
+graph TB
+    subgraph 客户端
+        Browser["浏览器<br/>index.html + app.js + styles.css"]
+    end
+
+    subgraph Flask Web 层
+        App["app.py<br/>应用入口"]
+        Routes["webapp/routes.py<br/>Blueprint 路由"]
+        History["webapp/history_store.py<br/>JSONL 历史存储"]
+    end
+
+    subgraph AI 生成引擎
+        Config["generator/config.py<br/>配置加载 (YAML + 环境变量)"]
+        Service["generator/service.py<br/>AIShopReviewService"]
+        Models["generator/models.py<br/>ShopInfo / ReviewError"]
+    end
+
+    subgraph 外部服务
+        LLM["LLM API<br/>DeepSeek / GLM / Qwen"]
+        Amap["高德地图 POI API"]
+    end
+
+    subgraph 存储
+        ConfigFile["config.yaml"]
+        HistoryFile["history.jsonl"]
+    end
+
+    Browser -- "HTTP 请求" --> Routes
+    App --> Routes
+    Routes -- "POST /generate" --> Service
+    Routes -- "GET/POST /history" --> History
+    Service --> Models
+    Service -- "单次调用：店铺信息 + 评价生成" --> LLM
+    Service -- "POI 搜索（可选）" --> Amap
+    Config --> ConfigFile
+    History --> HistoryFile
+```
+
 ## 技术栈
 
 | 层次 | 技术 |
